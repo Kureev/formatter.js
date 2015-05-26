@@ -62,15 +62,9 @@ function Formatter(el, opts) {
   self.focus = 0;
 
   // Add Listeners
-  utils.addListener(self.el, 'keydown', function (evt) {
-    self._keyDown(evt);
-  });
-  utils.addListener(self.el, 'keypress', function (evt) {
-    self._keyPress(evt);
-  });
-  utils.addListener(self.el, 'paste', function (evt) {
-    self._paste(evt);
-  });
+  utils.addListener(self.el, 'keydown', self._keyDown);
+  utils.addListener(self.el, 'keypress', self._keyPress);
+  utils.addListener(self.el, 'paste', self._paste);
 
   // Persistence
   if (self.opts.persistent) {
@@ -78,16 +72,9 @@ function Formatter(el, opts) {
     self._processKey('', false);
     self.el.blur();
 
-    // Add Listeners
-    utils.addListener(self.el, 'focus', function (evt) {
-      self._focus(evt);
-    });
-    utils.addListener(self.el, 'click', function (evt) {
-      self._focus(evt);
-    });
-    utils.addListener(self.el, 'touchstart', function (evt) {
-      self._focus(evt);
-    });
+    utils.addListener(self.el, 'focus', self._focus);
+    utils.addListener(self.el, 'click', self._focus);
+    utils.addListener(self.el, 'touchstart', self._focus);
   }
 }
 
@@ -95,15 +82,35 @@ function Formatter(el, opts) {
 // @public
 // Add new char
 //
-Formatter.addInptType = function (chr, reg) {
+Formatter.addInptType = function addInptType(chr, reg) {
   inptRegs[chr] = reg;
+};
+
+Formatter.prototype.destroy = function destroy() {
+  var self = this;
+
+  utils.removeListener(self.el, 'keydown', self._keyDown);
+  utils.removeListener(self.el, 'keypress', self._keyPress);
+  utils.removeListener(self.el, 'paste', self._paste);
+
+  // Persistence
+  if (self.opts.persistent) {
+    // Format on start
+    self._processKey('', false);
+    self.el.blur();
+
+    utils.removeListener(self.el, 'focus', self._focus);
+    utils.removeListener(self.el, 'click', self._focus);
+    utils.removeListener(self.el, 'touchstart', self._focus);
+  }
 };
 
 //
 // @public
 // Apply the given pattern to the current input without moving caret.
 //
-Formatter.prototype.resetPattern = function (str) {
+Formatter.prototype.resetPattern = function resetPattern(str) {
+  var newPattern;
   // Update opts to hold new pattern
   this.opts.patterns = str ? this._specFromSinglePattern(str) : this.opts.patterns;
 
@@ -120,10 +127,11 @@ Formatter.prototype.resetPattern = function (str) {
   this.patternMatcher = patternMatcher(this.opts.patterns);
 
   // Update pattern
-  var newPattern = this.patternMatcher.getPattern(this.val);
-  this.mLength   = newPattern.mLength;
-  this.chars     = newPattern.chars;
-  this.inpts     = newPattern.inpts;
+  newPattern = this.patternMatcher.getPattern(this.val);
+
+  this.mLength = newPattern.mLength;
+  this.chars = newPattern.chars;
+  this.inpts = newPattern.inpts;
 
   // Format on start
   this._processKey('', false, true);
@@ -133,7 +141,7 @@ Formatter.prototype.resetPattern = function (str) {
 // @private
 // Determine correct format pattern based on input val
 //
-Formatter.prototype._updatePattern = function () {
+Formatter.prototype._updatePattern = function _updatePattern() {
   // Determine appropriate pattern
   var newPattern = this.patternMatcher.getPattern(this.val);
 
@@ -152,7 +160,7 @@ Formatter.prototype._updatePattern = function () {
 // Handler called on all keyDown strokes. All keys trigger
 // this handler. Only process delete keys.
 //
-Formatter.prototype._keyDown = function (evt) {
+Formatter.prototype._keyDown = function _keyDown(evt) {
   // The first thing we need is the character code
   var k = evt.which || evt.keyCode;
 
@@ -169,7 +177,7 @@ Formatter.prototype._keyDown = function (evt) {
 // Handler called on all keyPress strokes. Only processes
 // character keys (as long as no modifier key is in use).
 //
-Formatter.prototype._keyPress = function (evt) {
+Formatter.prototype._keyPress = function _keyPress(evt) {
   // The first thing we need is the character code
   var k, isSpecial;
   // Mozilla will trigger on special keys and assign the the value 0
@@ -188,7 +196,7 @@ Formatter.prototype._keyPress = function (evt) {
 // @private
 // Handler called on paste event.
 //
-Formatter.prototype._paste = function (evt) {
+Formatter.prototype._paste = function _paste(evt) {
   // Process the clipboard paste and prevent default
   this._processKey(utils.getClip(evt), false);
   return utils.preventDefault(evt);
@@ -198,7 +206,7 @@ Formatter.prototype._paste = function (evt) {
 // @private
 // Handle called on focus event.
 //
-Formatter.prototype._focus = function () {
+Formatter.prototype._focus = function _focus() {
   // Wrapped in timeout so that we can grab input selection
   var self = this;
   setTimeout(function () {
@@ -218,7 +226,7 @@ Formatter.prototype._focus = function () {
 // @private
 // Using the provided key information, alter el value.
 //
-Formatter.prototype._processKey = function (chars, delKey, ignoreCaret) {
+Formatter.prototype._processKey = function _processKey(chars, delKey, ignoreCaret) {
   // Get current state
   this.sel = inptSel.get(this.el);
   this.val = this.el.value;
@@ -263,7 +271,7 @@ Formatter.prototype._processKey = function (chars, delKey, ignoreCaret) {
 // @private
 // Deletes the character in front of it
 //
-Formatter.prototype._delete = function () {
+Formatter.prototype._delete = function _delete() {
   // Adjust focus to make sure its not on a formatted char
   while (this.chars[this.sel.begin]) {
     this._nextPos();
@@ -283,7 +291,7 @@ Formatter.prototype._delete = function () {
 // @private
 // Quick helper method to move the caret to the next pos
 //
-Formatter.prototype._nextPos = function () {
+Formatter.prototype._nextPos = function _nextPos() {
   this.sel.end ++;
   this.sel.begin ++;
 };
@@ -293,7 +301,7 @@ Formatter.prototype._nextPos = function () {
 // Alter element value to display characters matching the provided
 // instance pattern. Also responsible for updating
 //
-Formatter.prototype._formatValue = function (ignoreCaret) {
+Formatter.prototype._formatValue = function _formatValue(ignoreCaret) {
   // Set caret pos
   this.newPos = this.sel.end + this.delta;
 
@@ -322,14 +330,13 @@ Formatter.prototype._formatValue = function (ignoreCaret) {
 // @private
 // Remove all formatted before and after a specified pos
 //
-Formatter.prototype._removeChars = function () {
+Formatter.prototype._removeChars = function _removeChars() {
+  // Account for shifts during removal
+  var shift = 0;
   // Delta shouldn't include placeholders
   if (this.sel.end > this.focus) {
     this.delta += this.sel.end - this.focus;
   }
-
-  // Account for shifts during removal
-  var shift = 0;
 
   // Loop through all possible char positions
   for (var i = 0; i <= this.mLength; i++) {
@@ -360,7 +367,7 @@ Formatter.prototype._removeChars = function () {
 // @private
 // Make sure all inpts are valid, else remove and update delta
 //
-Formatter.prototype._validateInpts = function () {
+Formatter.prototype._validateInpts = function _validateInpts() {
   // Loop over each char and validate
   for (var i = 0; i < this.val.length; i++) {
     // Get char inpt type
@@ -386,7 +393,7 @@ Formatter.prototype._validateInpts = function () {
 // @private
 // Loop over val and add formatted chars as necessary
 //
-Formatter.prototype._addChars = function () {
+Formatter.prototype._addChars = function _addChars() {
   if (this.opts.persistent) {
     // Loop over all possible characters
     for (var i = 0; i <= this.mLength; i++) {
@@ -419,7 +426,7 @@ Formatter.prototype._addChars = function () {
 // @private
 // Add formattted char at position
 //
-Formatter.prototype._addChar = function (i) {
+Formatter.prototype._addChar = function _addChar(i) {
   // If char exists at position
   var chr = this.chars[i];
   if (!chr) { return true; }
@@ -451,8 +458,8 @@ Formatter.prototype._addChar = function (i) {
 // Create a patternSpec for passing into patternMatcher that
 // has exactly one catch all pattern.
 //
-Formatter.prototype._specFromSinglePattern = function (patternStr) {
-  return [{ '*': patternStr }];
+Formatter.prototype._specFromSinglePattern = function _specFromSinglePattern(patternStr) {
+  return [{ '*': patternStr, }, ];
 };
 
 module.exports = Formatter;

@@ -4,6 +4,7 @@
  * Independent helper methods (cross browser, etc..)
  *
  */
+'use strict';
 // Define module
 var utils = {};
 
@@ -47,10 +48,12 @@ utils.isBetween = function (num, bounds) {
 //
 // Helper method for cross browser event listeners
 //
-utils.addListener = function (el, evt, handler) {
-  return (typeof el.addEventListener !== 'undefined')
-    ? el.addEventListener(evt, handler, false)
-    : el.attachEvent('on' + evt, handler);
+utils.addListener = function addListener(el, evt, handler) {
+  return el.addEventListener(evt, handler, false);
+};
+
+utils.removeListener = function removeListener(el, evt, handler) {
+  return el.removeEventListener(evt, handler, false);
 };
 
 //
