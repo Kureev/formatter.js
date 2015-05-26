@@ -4,11 +4,6 @@
  * Cross browser implementation to get and set input selections
  *
  */
-
-
-define(function () {
-
-
 // Define module
 var inptSel = {};
 
@@ -19,7 +14,7 @@ var inptSel = {};
 inptSel.get = function (el) {
   // If normal browser return with result
   if (typeof el.selectionStart === 'number') {
-    return { 
+    return {
       begin: el.selectionStart,
       end: el.selectionEnd
     };
@@ -38,14 +33,14 @@ inptSel.get = function (el) {
 
     // Move endRange begin pos to end pos (hence endRange)
     endRange.collapse(false);
-    
+
     // If we are at the very end of the input, begin and end
     // must both be the length of the el.value
     if (inputRange.compareEndPoints('StartToEnd', endRange) > -1) {
       return { begin: length, end: length };
     }
 
-    // Note: moveStart usually returns the units moved, which 
+    // Note: moveStart usually returns the units moved, which
     // one may think is -length, however, it will stop when it
     // gets to the begin of the range, thus giving us the
     // negative value of the pos.
@@ -85,7 +80,4 @@ inptSel.set = function (el, pos) {
 
 
 // Expose
-return inptSel;
-
-
-});
+module.exports = inptSel;

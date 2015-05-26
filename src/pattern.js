@@ -4,11 +4,6 @@
  * Utilities to parse str pattern and return info
  *
  */
-
-
-define(function () {
-
-
 // Define module
 var pattern = {};
 
@@ -76,7 +71,4 @@ pattern.parse = function (pattern) {
 
 
 // Expose
-return pattern;
-
-
-});
+module.exports = pattern;

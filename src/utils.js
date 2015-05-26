@@ -4,11 +4,6 @@
  * Independent helper methods (cross browser, etc..)
  *
  */
-
-
-define(function () {
-
-
 // Define module
 var utils = {};
 
@@ -179,7 +174,4 @@ utils.forEach = function (collection, callback, thisArg) {
 
 
 // Expose
-return utils;
-
-
-});
+module.exports = utils;

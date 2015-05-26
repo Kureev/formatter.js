@@ -6,12 +6,8 @@
 *
 */
 
-
-define([
-  'pattern',
-  'utils'
-], function (pattern, utils) {
-
+var pattern = require('./pattern');
+var utils = require('./utils');
 
 //
 // Parse a matcher string into a RegExp. Accepts valid regular
@@ -67,13 +63,10 @@ function patternMatcher (patternSpec) {
   return {
     getPattern: getPattern,
     patterns: patterns,
-    matchers: matchers
+    matchers: matchers,
   };
 }
 
 
 // Expose
-return patternMatcher;
-
-
-});
+module.exports = patternMatcher;

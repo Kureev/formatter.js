@@ -1,29 +1,26 @@
+'use strict';
 /*
  * formatter.js
  *
  * Class used to format input based on passed pattern
  *
  */
-
-define([
-  'pattern-matcher',
-  'inpt-sel',
-  'utils'
-], function (patternMatcher, inptSel, utils) {
-
+var patternMatcher = require('./pattern-matcher');
+var inputSel = require('./inpt-sel');
+var utils = require('./utils');
 
 // Defaults
 var defaults = {
   persistent: false,
   repeat: false,
-  placeholder: ' '
+  placeholder: ' ',
 };
 
 // Regexs for input validation
 var inptRegs = {
   '9': /[0-9]/,
   'a': /[A-Za-z]/,
-  '*': /[A-Za-z0-9]/
+  '*': /[A-Za-z0-9]/,
 };
 
 //
@@ -330,7 +327,7 @@ Formatter.prototype._removeChars = function () {
   if (this.sel.end > this.focus) {
     this.delta += this.sel.end - this.focus;
   }
-  
+
   // Account for shifts during removal
   var shift = 0;
 
@@ -458,9 +455,4 @@ Formatter.prototype._specFromSinglePattern = function (patternStr) {
   return [{ '*': patternStr }];
 };
 
-
-// Expose
-return Formatter;
-
-
-});
+module.exports = Formatter;
