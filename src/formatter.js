@@ -61,6 +61,11 @@ function Formatter(el, opts) {
   self.hldrs = {};
   self.focus = 0;
 
+  self._keyDown = self._keyDown.bind(this);
+  self._keyPress = self._keyPress.bind(this);
+  self._paste = self._paste.bind(this);
+  self._focus = self._focus.bind(this);
+
   // Add Listeners
   utils.addListener(self.el, 'keydown', self._keyDown);
   utils.addListener(self.el, 'keypress', self._keyPress);
